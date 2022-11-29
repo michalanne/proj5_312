@@ -20,28 +20,30 @@ class matrixSolver:
             self.matrix = self.firstCityMatrix(gCityList)
             # cost stays 0 in this case, gets updated by state.cost in all others
             self.visited.append(firstCity)
-            for i in gCityList:
-                self.unvisited.append(i)
+            for givenCity in gCityList:
+                self.unvisited.append(givenCity)
             self.unvisited.remove(firstCity)
             self.fromCity = firstCity
         else:
             self.matrix, distance = self.updateDistance(self.state.matrix)
             self.visited = Gstate.visited
             self.visited.append(nextCity)
-            for i in Gstate.unvisited:
-                self.unvisited.append(i)
+            for givenCity in Gstate.unvisited:
+                self.unvisited.append(givenCity)
             # self.unvisited = Gstate.unvisited
             if nextCity != firstCity:
                 self.unvisited.remove(nextCity)
             self.cost = self.state.cost
             self.cost += distance
-            self.matrix = self.updateDistanceVisited(self.matrix, fromCity, nextCity)
+            self.matrix = self.updateDistanceVisited(
+                self.matrix, fromCity, nextCity)
             # distance added to cost currently (I assume)
         # current cost/distance updated by state.cost
 
     def updateDistance(self, state):
         size = 0
-        updatedState = [] # just push to new state and return that state instead of trying to update existing one. gross.
+        # just push to new state and return that state instead of trying to update existing one. gross.
+        updatedState = []
         finalState = []
         additionalDistance = 0
         for q in range(len(state)):
@@ -65,7 +67,8 @@ class matrixSolver:
                 updatedState[outer][inner] = temp
                 inner += 1
             if smallestRow != math.inf:
-                additionalDistance += smallestRow # if additional distance is infinity, that means the route is impossible.
+                # if additional distance is infinity, that means the route is impossible.
+                additionalDistance += smallestRow
             size += 1
             inner = 0
             outer += 1
@@ -96,7 +99,6 @@ class matrixSolver:
         return finalState, additionalDistance
         # take the smallest number in the row, subtract whole row
         # take the smallest number in the column, subtract whole column
-
 
     def updateDistanceVisited(self, state, fromCity, toCity):
         # infinity out the current city and next city (to)

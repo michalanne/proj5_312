@@ -90,7 +90,7 @@ class TSPSolver:
 	'''
 
     def branchAndBound(self, time_allowance=60.0):
-        S = []  # heap
+
         count = 0
         bssf = 0
         pruned = 0
@@ -99,7 +99,7 @@ class TSPSolver:
         cities = self._scenario.getCities()
         t0 = time.process_time()
         for i in range(len(cities)):
-            print("NEXT CITY INDEX: ", i)
+            S = []  # heap
             soln = []
             oCity = cities[i]
             firstCityMatrix = matrixSolver.matrixSolver(
@@ -115,7 +115,8 @@ class TSPSolver:
                 curr = heapq.heappop(S)
                 # check time
                 if t1 >= time_allowance:
-                    print("MAX TIME MET!")
+                    print("MAX TIME MET! || pruned: ", pruned,
+                          " || Length of unvisited nodes: ", len(curr.unvisited))
                     break
                 # another for loop checking all the cities that haven't been visited by the current state
                 for unvisitedCity in curr.unvisited:
