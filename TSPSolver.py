@@ -54,6 +54,7 @@ class TSPSolver:
             count += 1
             if bssf.cost < np.inf:
                 # Found a valid route
+                print("TOUR: ", route)
                 foundTour = True
         end_time = time.time()
         results['cost'] = bssf.cost if foundTour else math.inf
@@ -92,74 +93,69 @@ class TSPSolver:
     def branchAndBound(self, time_allowance=60.0):
 
         count = 0
-        bssf = 0
         pruned = 0
-        results = {}
-        bssf = self.defaultRandomTour()['cost']
+        results = self.defaultRandomTour()
         cities = self._scenario.getCities()
         t0 = time.process_time()
-        for i in range(len(cities)):
-            S = []  # heap
-            soln = []
-            oCity = cities[i]
-            firstCityMatrix = matrixSolver.matrixSolver(
-                cities, None, None, None, oCity)
-            soln.append(oCity)
-            total = 1
-            # create initial state
-            # insert first state in heap
-            heapq.heappush(S, firstCityMatrix)
-            # while loop (while heap is not empty or a for loop)
-            while len(S) != 0:
-                t1 = time.process_time() - t0
-                curr = heapq.heappop(S)
-                # check time
-                if t1 >= time_allowance:
-                    print("MAX TIME MET! || pruned: ", pruned,
-                          " || Length of unvisited nodes: ", len(curr.unvisited))
-                    break
-                # another for loop checking all the cities that haven't been visited by the current state
-                for unvisitedCity in curr.unvisited:
-                    # if the cost of travelling to that city (computed in the matrixSolver) is less than bssf
-                    testingCityMatrix = matrixSolver.matrixSolver(
-                        cities, curr.fromCity, unvisitedCity, curr, firstCityMatrix)
-                    total += 1
-                    if testingCityMatrix.cost < bssf:
-                        heapq.heappush(S, testingCityMatrix)
-                        soln.append(unvisitedCity)
-                        # add to the heap (including priority)
-                    else:
-                        pruned += 1
-                        # otherwise, update the pruned objects
-                # if visited is empty
-                if len(curr.unvisited) == 0:
-                    # then check that you can get back to initial city
-                    backToFirst = matrixSolver.matrixSolver(
-                        cities, curr.fromCity, oCity, curr, oCity)
-                    total += 1
-                    # update bssf
+        S = []  # heap
+        oCity = cities[0]
+        firstCityMatrix = matrixSolver.matrixSolver(
+            cities, None, None, None, oCity)
+        total = 1
+        # create initial state
+        # insert first state in heap
+        heapq.heappush(S, firstCityMatrix)
+        # while loop (while heap is not empty or a for loop)
+        while len(S) != 0:
+            t1 = time.process_time() - t0
+            curr = heapq.heappop(S)
+            # check time
+            if t1 >= time_allowance:
+                print("MAX TIME MET! || pruned: ", pruned,
+                      " || Length of unvisited nodes: ", len(curr.unvisited))
+                break
+            # another for loop checking all the cities that haven't been visited by the current state
+            for unvisitedCity in curr.unvisited:
+                # if the cost of travelling to that city (computed in the matrixSolver) is less than bssf
+                testingCityMatrix = matrixSolver.matrixSolver(
+                    cities, curr.fromCity, unvisitedCity, curr, firstCityMatrix)
+                total += 1
+                if testingCityMatrix.cost < results['cost']:
+                    heapq.heappush(S, testingCityMatrix)
+                    # add to the heap (including priority)
+                else:
+                    pruned += 1
+                    # otherwise, update the pruned objects
+            # if visited is empty
+            if len(curr.unvisited) == 0:
+                # then check that you can get back to initial city
+                backToFirst = matrixSolver.matrixSolver(
+                    cities, curr.fromCity, oCity, curr, oCity)
+                total += 1
+                # update bssf
+                if backToFirst.cost < results['cost']:
                     tN = time.process_time() - t0
-                    print("TN: ", tN, " || firstCityIndex: ", i)
-                    if curr.cost <= bssf:
-                        bssf = curr.cost
-                        count += 1
-                        # add current city/path everything to solutions list
-                        # 		results['cost'] = bssf.cost if foundTour else math.inf
-                        # 		results['time'] = end_time - start_time
-                        # 		results['count'] = count
-                        # 		results['soln'] = bssf
-                        # 		results['max'] = None
-                        # 		results['total'] = None
-                        # 		results['pruned'] = None
-                        results['cost'] = bssf
-                        results['time'] = tN
-                        ss = TSPSolution(soln)
-                        results['soln'] = ss
-                        results['total'] = total
-                        results['max'] = None
-                        results['count'] = count
-                        results['pruned'] = pruned
-                    # update 'count' in result (to tell us how many solutions there are)
+                    print("TN: ", tN, " || cost: ",
+                          backToFirst.cost, " || pruned: ", pruned)
+                    count += 1
+                    # add current city/path everything to solutions list
+                    # 		results['cost'] = bssf.cost if foundTour else math.inf
+                    # 		results['time'] = end_time - start_time
+                    # 		results['count'] = count
+                    # 		results['soln'] = bssf
+                    # 		results['max'] = None
+                    # 		results['total'] = None
+                    # 		results['pruned'] = None
+                    results['cost'] = backToFirst.cost
+                    results['time'] = tN
+                    print("VISITED: ", backToFirst.visited)
+                    ss = TSPSolution(backToFirst.visited)
+                    results['soln'] = ss
+                    results['total'] = total
+                    results['max'] = None
+                    results['count'] = count
+                    results['pruned'] = pruned
+                # update 'count' in result (to tell us how many solutions there are)
         return results
         pass
 
