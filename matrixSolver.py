@@ -25,27 +25,37 @@ class matrixSolver:
             self.unvisited.remove(firstCity)
             self.fromCity = firstCity
         else:
-            self.matrix, distance = self.updateDistance(self.state.matrix)
-            self.visited = Gstate.visited
-            self.visited.append(nextCity)
+            edgeLength = self.state.matrix[nextCity._index][fromCity._index]
+            self.matrix = self.updateDistanceVisited(
+                self.state.matrix, fromCity, nextCity)
+            self.matrix, distance = self.updateDistance(self.matrix)
+            for givenCity in Gstate.visited:
+                self.visited.append(givenCity)
             for givenCity in Gstate.unvisited:
                 self.unvisited.append(givenCity)
             # self.unvisited = Gstate.unvisited
             if nextCity != firstCity:
                 self.unvisited.remove(nextCity)
+                self.visited.append(nextCity)
             self.cost = self.state.cost
-            self.cost += distance
-            self.matrix = self.updateDistanceVisited(
-                self.matrix, fromCity, nextCity)
+            self.cost += distance + edgeLength
             # distance added to cost currently (I assume)
         # current cost/distance updated by state.cost
+
+    def print2DMatrix(self, matrix):
+        print("\n---------------\n")
+        print('\n'.join(['\t'.join([str(cell) for cell in row])
+              for row in matrix]))
+        print("\n---------------\n")
 
     def updateDistance(self, state):
         size = 0
         # just push to new state and return that state instead of trying to update existing one. gross.
         updatedState = []
         finalState = []
+
         additionalDistance = 0
+
         for q in range(len(state)):
             col = []
             for s in range(len(state)):
@@ -75,15 +85,12 @@ class matrixSolver:
         outer = 0
         inner = 0
         temp = 0
-        # print("state: ", state)
-        # print("updatedState after rows: ", updatedState)
         for j in range(len(updatedState)):
             smallestColumn = math.inf
             for c in updatedState:
                 # print("c: ", c, " c[j]: ", c[j], " smallestColumn: ", smallestColumn)
                 if smallestColumn > c[j]:
                     smallestColumn = c[j]
-            # print("BREAK\n\n\n\n\n\n")
             for nc in updatedState:
                 if smallestColumn != math.inf and nc != math.inf:
                     temp = nc[j] - smallestColumn
@@ -105,9 +112,10 @@ class matrixSolver:
         # city._index will give the index lolz
         for i in range(len(state)):
             # FROM
-            state[i][fromCity._index] = math.inf
+            state[i][toCity._index] = math.inf
         for j in range(len(state)):
-            state[toCity._index][j] = math.inf
+            state[fromCity._index][j] = math.inf
+        state[toCity._index][fromCity._index] = math.inf
         return state
 
     # def priority(self):
