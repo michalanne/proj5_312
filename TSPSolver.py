@@ -54,10 +54,9 @@ class TSPSolver:
             count += 1
             if bssf.cost < np.inf:
                 # Found a valid route
-                print("TOUR: ", route)
                 foundTour = True
         end_time = time.time()
-        results['cost'] = bssf.cost if foundTour else math.inf
+        results['cost'] = math.inf  # bssf.cost if foundTour else math.inf
         results['time'] = end_time - start_time
         results['count'] = count
         results['soln'] = bssf
@@ -118,7 +117,7 @@ class TSPSolver:
             for unvisitedCity in curr.unvisited:
                 # if the cost of travelling to that city (computed in the matrixSolver) is less than bssf
                 testingCityMatrix = matrixSolver.matrixSolver(
-                    cities, curr.fromCity, unvisitedCity, curr, firstCityMatrix)
+                    cities, curr.fromCity, unvisitedCity, curr, oCity)
                 total += 1
                 if testingCityMatrix.cost < results['cost']:
                     heapq.heappush(S, testingCityMatrix)
