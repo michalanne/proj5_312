@@ -56,7 +56,7 @@ class TSPSolver:
                 # Found a valid route
                 foundTour = True
         end_time = time.time()
-        results['cost'] = math.inf  # bssf.cost if foundTour else math.inf
+        results['cost'] = bssf.cost if foundTour else math.inf
         results['time'] = end_time - start_time
         results['count'] = count
         results['soln'] = bssf
@@ -134,8 +134,8 @@ class TSPSolver:
                 # update bssf
                 if backToFirst.cost < results['cost']:
                     tN = time.process_time() - t0
-                    print("TN: ", tN, " || cost: ",
-                          backToFirst.cost, " || pruned: ", pruned)
+                    # print("TN: ", tN, " || cost: ",
+                    #       backToFirst.cost, " || pruned: ", pruned)
                     count += 1
                     # add current city/path everything to solutions list
                     # 		results['cost'] = bssf.cost if foundTour else math.inf
@@ -147,7 +147,6 @@ class TSPSolver:
                     # 		results['pruned'] = None
                     results['cost'] = backToFirst.cost
                     results['time'] = tN
-                    print("VISITED: ", backToFirst.visited)
                     ss = TSPSolution(backToFirst.visited)
                     results['soln'] = ss
                     results['total'] = total

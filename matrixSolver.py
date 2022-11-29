@@ -18,6 +18,7 @@ class matrixSolver:
         if self.nextCity == None:
             # we are on the first city, and need to only create the state and return it
             self.matrix = self.firstCityMatrix(gCityList)
+            # self.print2DMatrix(self.matrix)
             # cost stays 0 in this case, gets updated by state.cost in all others
             self.visited.append(firstCity)
             for givenCity in gCityList:
@@ -25,10 +26,19 @@ class matrixSolver:
             self.unvisited.remove(firstCity)
             self.fromCity = firstCity
         else:
-            edgeLength = self.state.matrix[nextCity._index][fromCity._index]
+            # print("Going from: ", fromCity._index, " To: ",
+            #       nextCity._index, " || total visited: ", len(self.visited))
+            edgeLength = self.state.matrix[fromCity._index][nextCity._index]
+            # print("RAW:")
+            # self.print2DMatrix(self.state.matrix)
             self.matrix = self.updateDistanceVisited(
                 self.state.matrix, fromCity, nextCity)
+            # print("blocked:")
+            # self.print2DMatrix(self.matrix)
             self.matrix, distance = self.updateDistance(self.matrix)
+            # print("Reduced:")
+            # self.print2DMatrix(self.matrix)
+            # print("Cost of reduction:", distance, " edge length: ", edgeLength)
             for givenCity in Gstate.visited:
                 self.visited.append(givenCity)
             for givenCity in Gstate.unvisited:
@@ -39,6 +49,8 @@ class matrixSolver:
                 self.visited.append(nextCity)
             self.cost = self.state.cost
             self.cost += distance + edgeLength
+            self.fromCity = nextCity
+
             # distance added to cost currently (I assume)
         # current cost/distance updated by state.cost
 
@@ -109,14 +121,22 @@ class matrixSolver:
 
     def updateDistanceVisited(self, state, fromCity, toCity):
         # infinity out the current city and next city (to)
-        # city._index will give the index lolz
+        copyState = []
+        # make a copy
         for i in range(len(state)):
+            newRow = []
+            for j in range(len(state)):
+                newRow.append(state[i][j])
+            copyState.append(newRow)
+
+        # city._index will give the index lolz
+        for i in range(len(copyState)):
             # FROM
-            state[i][toCity._index] = math.inf
-        for j in range(len(state)):
-            state[fromCity._index][j] = math.inf
-        state[toCity._index][fromCity._index] = math.inf
-        return state
+            copyState[i][toCity._index] = math.inf
+        for j in range(len(copyState)):
+            copyState[fromCity._index][j] = math.inf
+        copyState[toCity._index][fromCity._index] = math.inf
+        return copyState
 
     # def priority(self):
     #     # update priority (of next city) and return it
