@@ -93,6 +93,7 @@ class TSPSolver:
 
         count = 0
         pruned = 0
+        maxHeapSize = 0
         results = self.defaultRandomTour()
         cities = self._scenario.getCities()
         t0 = time.process_time()
@@ -108,6 +109,10 @@ class TSPSolver:
         while len(S) != 0:
             t1 = time.process_time() - t0
             curr = heapq.heappop(S)
+            # check if current cost is greater than our lowest solution
+            if curr.cost >= results['cost']:
+                continue
+
             # check time
             if t1 >= time_allowance:
                 print("MAX TIME MET! || pruned: ", pruned,
@@ -121,6 +126,8 @@ class TSPSolver:
                 total += 1
                 if testingCityMatrix.cost < results['cost']:
                     heapq.heappush(S, testingCityMatrix)
+                    if len(S) > maxHeapSize:
+                        maxHeapSize = len(S)
                     # add to the heap (including priority)
                 else:
                     pruned += 1
@@ -134,8 +141,6 @@ class TSPSolver:
                 # update bssf
                 if backToFirst.cost < results['cost']:
                     tN = time.process_time() - t0
-                    # print("TN: ", tN, " || cost: ",
-                    #       backToFirst.cost, " || pruned: ", pruned)
                     count += 1
                     # add current city/path everything to solutions list
                     # 		results['cost'] = bssf.cost if foundTour else math.inf
@@ -150,7 +155,7 @@ class TSPSolver:
                     ss = TSPSolution(backToFirst.visited)
                     results['soln'] = ss
                     results['total'] = total
-                    results['max'] = None
+                    results['max'] = maxHeapSize
                     results['count'] = count
                     results['pruned'] = pruned
                 # update 'count' in result (to tell us how many solutions there are)

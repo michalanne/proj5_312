@@ -185,4 +185,6 @@ class matrixSolver:
     #     return ret
 
     def __lt__(self, nxt):
-        return self.cost/len(self.visited) > nxt.cost/len(nxt.visited)
+        if len(self.visited) > len(nxt.visited):
+            return False
+        return self.cost > nxt.cost
